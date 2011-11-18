@@ -35,16 +35,15 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
 
-
-
-
-
 class TestFunct {
 public :
 	cond::DbSession s; 
 	TestFunct();
 	bool Write(std::string mappingName, int payloadID);
+        bool WriteWithIOV(std::string mappingName, int payloadID, int runValidity );
+        std::pair<int,int> GetMetadata(std::string mappingName);
 	bool Read(std::string mappingName);
+        bool ReadWithIOV(std::string mappingName, int seed, int runValidity);
 	bool ReadAll();
 	bool CreateMetaTable();
 	bool DropTables(std::string connStr);
