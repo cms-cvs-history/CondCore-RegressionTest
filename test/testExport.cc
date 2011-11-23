@@ -41,10 +41,17 @@ int cond_regression::ExportIOVTest::execute(){
     m_tf.s = openDbSession("sourceConnect");
     std::string tag = getOptionValue<std::string>("initDatabase");
     int seed = getOptionValue<int>("seed");
-    cond::Time_t since = getOptionValue<cond::Time_t>("beginTime");
+    cond::Time_t since = 1;
+    if( hasOptionValue("beginTime") ){
+      since = getOptionValue<cond::Time_t>("beginTime");
+    }
     if(!m_tf.DropTables( m_tf.s.connectionString() )){
-      if( hasOptionValue("metadata") ) m_tf.CreateMetaTable();
-      return m_tf.WriteWithIOV(tag, seed, since);
+      bool withTestMetadata = false;
+      if( hasOptionValue("metadata") ) {
+	m_tf.CreateMetaTable();
+        withTestMetadata = true;
+      }
+      return m_tf.WriteWithIOV(tag, seed, since, withTestMetadata);
     }
     return 1;
   }
