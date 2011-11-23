@@ -35,9 +35,6 @@ int cond_regression::ExportIOVTest::execute(){
     if(!hasOptionValue("seed")){
       throw std::runtime_error("seed parameter has not been provided.");
     }
-    if(!hasOptionValue("beginTime")){
-      throw std::runtime_error("beginTime parameter has not been provided.");
-    }
     m_tf.s = openDbSession("sourceConnect");
     std::string tag = getOptionValue<std::string>("initDatabase");
     int seed = getOptionValue<int>("seed");
