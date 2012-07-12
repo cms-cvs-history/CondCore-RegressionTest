@@ -2,6 +2,9 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
+//typedef TestPayloadClass Payload;
+typedef RegressionTestPayload Payload;
+
 TestFunct::TestFunct() {}
 
 std::pair<int,int> TestFunct::GetMetadata(std::string mappingName)
@@ -57,10 +60,10 @@ bool TestFunct::Read (std::string mappingName)
 			refSeed=row[ "SEED" ].data<int>();
 		}
 		std::string readToken = metadata.getToken(mappingName);
-		pool::Ref<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( readToken );  //v3	
+		pool::Ref<Payload> readRef0 = s.getTypedObject<Payload>( readToken );  //v3	
 		std::cout << "Object with id="<<readToken<<" has been read"<<std::endl;
-		TestPayloadClass tp = *readRef0;
-		TestPayloadClass tp2(refSeed);
+		Payload tp = *readRef0;
+		Payload tp2(refSeed);
 		if(tp != tp2)
 			std::cout <<" read failed : token "<<refSeed<<std::endl;
 		trans.commit();
@@ -88,10 +91,10 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
  		  std::cout << "ERROR: no payload found in IOV for run="<<validity<<std::endl;
  		  return 1;
  		}
- 		pool::Ref<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( iPayload->token() ); //v4	
+ 		pool::Ref<Payload> readRef0 = s.getTypedObject<Payload>( iPayload->token() ); //v4	
  		std::cout << "Object with id="<<iPayload->token()<<" has been read"<<std::endl;
- 		TestPayloadClass tp = *readRef0;
- 		TestPayloadClass tp2(seed);
+ 		Payload tp = *readRef0;
+ 		Payload tp2(seed);
  		if(tp != tp2)
  		  std::cout <<" read failed : seed="<<seed<<std::endl;
  		trans.commit();
@@ -140,7 +143,7 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 		rowBuffer["SEED"].data<int>()=payloadID;
 		rowBuffer["RUN"].data<int>()=-1;
 		dataEditor.insertRow( rowBuffer );	
-	        pool::Ref<TestPayloadClass> myRef0 = s.storeObject(new TestPayloadClass(payloadID), "cont1"); //v3
+	        pool::Ref<Payload> myRef0 = s.storeObject(new Payload(payloadID), "cont1"); //v3
 		tok0 = myRef0.toString(); //v3
 	    metadata.addMapping(mappingName, tok0);
 	    std::cout << "Stored object with id = "<<tok0<<std::endl;
@@ -173,7 +176,7 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
        rowBuffer["RUN"].data<int>()= runValidity;
        dataEditor.insertRow( rowBuffer );
      }		
-     pool::Ref<TestPayloadClass> myRef0 = s.storeObject(new TestPayloadClass(payloadID), "cont1"); //v3
+     pool::Ref<Payload> myRef0 = s.storeObject(new Payload(payloadID), "cont1"); //v3
      std::string payloadTok = myRef0.toString(); 
      iov.create( cond::runnumber );
      iov.append( runValidity, payloadTok );
