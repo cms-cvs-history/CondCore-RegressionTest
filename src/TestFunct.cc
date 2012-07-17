@@ -43,6 +43,7 @@ bool TestFunct::Read (std::string mappingName)
 	cond::DbScopedTransaction trans(s);
 	cond::MetaData  metadata(s);
 	int refSeed =0;
+        bool ret = false;
 	try {
 		trans.start(true);
 		
@@ -64,15 +65,18 @@ bool TestFunct::Read (std::string mappingName)
 		std::cout << "Object with id="<<readToken<<" has been read"<<std::endl;
 		Payload tp = *readRef0;
 		Payload tp2(refSeed);
-		if(tp != tp2)
-			std::cout <<" read failed : token "<<refSeed<<std::endl;
+		if(tp == tp2){
+		  ret = true;
+		} else {
+		  std::cout <<" read failed : seed "<<refSeed<<std::endl;
+		}
 		trans.commit();
 	} catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return 1;
+		return false;
 	}
-	return 0;
+	return ret;
 }
 
 bool TestFunct::ReadWithIOV(std::string mappingName, 
@@ -81,6 +85,7 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
 {
  	cond::DbScopedTransaction trans(s);
  	cond::MetaData  metadata(s);
+        bool ret = false;
  	try {
  		trans.start(true);
 
@@ -95,8 +100,11 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
  		std::cout << "Object with id="<<iPayload->token()<<" has been read"<<std::endl;
  		Payload tp = *readRef0;
  		Payload tp2(seed);
- 		if(tp != tp2)
+ 		if(tp == tp2){
+		  ret = true;
+		} else {
  		  std::cout <<" read failed : seed="<<seed<<std::endl;
+		}
  		trans.commit();
  	} catch ( const cond::Exception& exc )
  	{
@@ -111,21 +119,22 @@ bool TestFunct::ReadAll()
 	cond::DbScopedTransaction trans(s);
 	cond::MetaData  metadata(s);
 	std::vector<std::string> tokenList;
+	bool ret = true;
 	try {
 		trans.start(true);
 		metadata.listAllTags(tokenList);
 		for(unsigned int i=0; i<tokenList.size(); i++)
 		{
-			Read(tokenList[i]);
+		  if(!Read(tokenList[i])) ret = false;
 		}
 		trans.commit();
 	} 
 	catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return 1;
+		return false;
 	}
-	return 0;
+	return ret;
 }
 bool TestFunct::Write (std::string mappingName, int payloadID)
 {
@@ -151,9 +160,9 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 	} catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return 1;
+		return false;
 	}
-	return 0;
+	return true;
 }
 
 bool TestFunct::WriteWithIOV(std::string mappingName, 
@@ -185,9 +194,9 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
    } catch ( const cond::Exception& exc )
      {
        std::cout << "ERROR: "<<exc.what()<<std::endl;
-       return 1;
+       return false;
      }
-   return 0;    
+   return true;    
 }
 
 bool TestFunct::CreateMetaTable ()
@@ -215,9 +224,9 @@ bool TestFunct::CreateMetaTable ()
 		trans.commit();
 	}catch( const coral::TableAlreadyExistingException& er ){
 		std::cout<<"table alreay existing, not creating a new one"<<std::endl;
-		return 1;
+		return false;
 	}
-	return 0;
+	return true;
 }
 bool TestFunct::DropTables(std::string connStr)
 {
@@ -233,9 +242,9 @@ bool TestFunct::DropTables(std::string connStr)
 	catch ( const std::exception& exc )
 	{
 		std::cout <<" ERROR: "<<exc.what()<<std::endl;
-		return 1;
+		return false;
     }
-	return 0;
+	return true;
 }
 bool TestFunct::DropItem(std::string mappingName)
 {
@@ -251,8 +260,8 @@ bool TestFunct::DropItem(std::string mappingName)
 	catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return 1;
+		return false;
 	}
 	
-	return 0;
+	return true;
 }
