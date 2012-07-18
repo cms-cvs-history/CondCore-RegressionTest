@@ -57,7 +57,6 @@ int cond_regression::ExportIOVTest::execute(){
 	return 1;
       }
     }
-    std::cout <<"@@writing iov..."<<std::endl;
     if(!m_tf.WriteWithIOV(tag, seed, since, withTestMetadata)){
       return 1;
     }
