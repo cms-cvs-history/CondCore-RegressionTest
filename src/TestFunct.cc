@@ -2,6 +2,9 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
+#include "RelationalAccess/ITableSchemaEditor.h"
+#include "CoralBase/Blob.h"
+
 //typedef TestPayloadClass Payload;
 typedef RegressionTestPayload Payload;
 
@@ -136,6 +139,40 @@ bool TestFunct::ReadAll()
 	}
 	return ret;
 }
+
+/**
+namespace TestFuncImpl {
+  // workaround to make possible the streaming of std::bitset
+  static const char* BITSET_COLNAME = "DARRAYPA_M_BITSET";
+  pool::Ref<Payload> initWriting( cond::DbSession& s ){
+    cond::DbScopedTransaction trans(s);
+    pool::Ref<Payload> ret;
+    trans.start();
+    coral::ISchema& schema = s.nominalSchema();
+    if(!schema.existsTable("POOL_RSS_DB")){
+      ret = s.storeObject( new Payload(1), "cont1" );
+      trans.commit();
+      trans.start();
+      coral::ITableSchemaEditor& mainPayloadTableSchema = schema.tableHandle("REGRESSIONTESTPAYLOA").schemaEditor();
+      mainPayloadTableSchema.insertColumn(BITSET_COLNAME,coral::AttributeSpecification::typeNameForId( typeid(coral::Blob) ));
+      coral::ITableDataEditor& mappingTable = schema.tableHandle("POOL_OR_MAPPING_ELEMENTS").dataEditor();
+      coral::AttributeList inputData;
+      inputData.extend<std::string>( "ELEMENT_TYPE");
+      inputData.extend<std::string>( "COLUMN_NAME");
+      inputData.extend<std::string>( "VARIABLE_NAME");
+      inputData[ "ELEMENT_TYPE" ].data<std::string>() = "Blob";
+      inputData[ "COLUMN_NAME" ].data<std::string>() = BITSET_COLNAME;
+      inputData[ "VARIABLE_NAME" ].data<std::string>() = "ArrayPayload::m_bitset";
+      std::string setClause = "ELEMENT_TYPE =:ELEMENT_TYPE, COLUMN_NAME=:COLUMN_NAME";
+      std::string whereClause = "VARIABLE_NAME =:VARIABLE_NAME";
+      mappingTable.updateRows( setClause,whereClause, inputData  );
+    }
+    trans.commit();
+    return ret;
+  }
+}
+**/
+
 bool TestFunct::Write (std::string mappingName, int payloadID)
 {
 		cond::DbScopedTransaction trans(s);
@@ -143,6 +180,7 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 	   std::string tok0("");
 	try 
 	{
+	  //pool::Ref<Payload> dummy = TestFuncImpl::initWriting( s );
 	    trans.start();
 		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
 		coral::AttributeList rowBuffer;
@@ -173,6 +211,7 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
    cond::MetaData  metadata(s);
    std::string tok0("");
    try {
+     //pool::Ref<Payload> dummy = TestFuncImpl::initWriting( s );
      cond::IOVEditor iov(s);
      trans.start();
      if( updateTestMetadata ){

@@ -41,6 +41,7 @@ class ArrayPayload {
   std::map<std::string,std::string> m_map1;
   std::list<int> m_list;
   std::set<std::string> m_set;
+  std::bitset<128> m_bitset;
   std::vector<Param> m_vec2;
   std::map<int,Param> m_map2;
   // blob streaming

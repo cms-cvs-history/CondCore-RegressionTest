@@ -24,6 +24,14 @@ bool Param::operator !=(const Param& rhs) const {
   return !operator==( rhs );
 }
 
+void setDefaultBitSet( std::bitset<128>& val ){
+  size_t i = 0;
+  while( i<128 ){
+    if( i%2==0 ) val.set(i);
+    i++;
+  }
+}
+
 ArrayPayload::ArrayPayload():
   m_i(-1),
   m_p0(),
@@ -35,9 +43,11 @@ ArrayPayload::ArrayPayload():
   m_map1(),
   m_list(),
   m_set(),
+  m_bitset(),
   m_vec2(),
   m_map2(),
   m_vec3(){
+  setDefaultBitSet( m_bitset );
 }
 
 ArrayPayload::ArrayPayload( int seed ):
@@ -51,6 +61,7 @@ ArrayPayload::ArrayPayload( int seed ):
   m_map1(),
   m_list(),
   m_set(),
+  m_bitset(),
   m_vec2(),
   m_map2(),
   m_vec3(){
@@ -111,6 +122,13 @@ ArrayPayload::ArrayPayload( int seed ):
     m_vec3.push_back( Param( seed ) );
   }
   
+  size_t i=0;
+  int j = 1;
+  while( j<128 ){
+    if( seed & j )m_bitset.set(i);
+    j = j << 1;
+    i++;
+  }
 }
 
 bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
@@ -155,6 +173,9 @@ bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
   if(m_map2 != rhs.m_map2 ) return false;
   if(m_list != rhs.m_list ) return false;
   if(m_set != rhs.m_set ) return false;
+  std::bitset<128> defValue;
+  setDefaultBitSet( defValue );
+  if( m_bitset != defValue && m_bitset != rhs.m_bitset ) return false;
   return true;
 }
   
