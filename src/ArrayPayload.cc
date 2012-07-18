@@ -131,6 +131,7 @@ ArrayPayload::ArrayPayload( int seed ):
   }
 }
 
+#include <iostream>
 bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
   if( m_i != rhs.m_i ) return false;
   for( int i=0;i<4;i++){
@@ -175,7 +176,11 @@ bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
   if(m_set != rhs.m_set ) return false;
   std::bitset<128> defValue;
   setDefaultBitSet( defValue );
-  if( m_bitset != defValue && m_bitset != rhs.m_bitset ) return false;
+  if( m_bitset == defValue ){
+    std::cout <<"WARNING: data member \"m_bitset\" read with the default value."<<std::endl;
+  } else {
+    if( m_bitset != rhs.m_bitset ) return false;
+  }
   return true;
 }
   
