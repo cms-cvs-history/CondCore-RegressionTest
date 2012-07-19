@@ -112,9 +112,9 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
  	} catch ( const cond::Exception& exc )
  	{
  		std::cout << "ERROR: "<<exc.what()<<std::endl;
- 		return 1;
+ 		return false;
  	}
- 	return 0;
+ 	return ret;
 }
 
 bool TestFunct::ReadAll()
