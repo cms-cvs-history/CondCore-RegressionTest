@@ -135,6 +135,52 @@ bool TestFunct::ReadAll()
 	}
 	return ret;
 }
+
+namespace TestFuncImpl {
+  // workaround to make working the array streaming in 4_4 and after
+  boost::shared_ptr<Payload> initWriting( cond::DbSession& s ){
+    cond::DbScopedTransaction trans(s);
+    boost::shared_ptr<Payload> ret;
+    trans.start();
+    coral::ISchema& schema = s.nominalSchema();
+    if(!schema.existsTable("POOL_RSS_DB")){
+      ret.reset( new Payload(0) );
+      s.storeObject( ret.get(), "cont1" );
+      trans.commit();
+      trans.start();
+      coral::ITableDataEditor& mappingTable = schema.tableHandle("ORA_MAPPING_ELEMENT").dataEditor();
+      std::string setClause = "VARIABLE_TYPE =:VARIABLE_TYPE";
+      std::string whereClause = "VARIABLE_NAME =:VARIABLE_NAME";
+      coral::AttributeList inputData0;
+      inputData0.extend<std::string>( "VARIABLE_TYPE");
+      inputData0.extend<std::string>( "VARIABLE_NAME");
+      inputData0[ "VARIABLE_TYPE" ].data<std::string>() = "int[112]";
+      inputData0[ "VARIABLE_NAME" ].data<std::string>() = "ArrayPayload::m_ai1";
+      mappingTable.updateRows( setClause,whereClause, inputData0  );
+      coral::AttributeList inputData1;
+      inputData1.extend<std::string>( "VARIABLE_TYPE");
+      inputData1.extend<std::string>( "VARIABLE_NAME");
+      inputData1[ "VARIABLE_TYPE" ].data<std::string>() = "int[2][80]";
+      inputData1[ "VARIABLE_NAME" ].data<std::string>() = "ArrayPayload::m_ai3";
+      mappingTable.updateRows( setClause,whereClause, inputData1  );
+      coral::AttributeList inputData2;
+      inputData2.extend<std::string>( "VARIABLE_TYPE");
+      inputData2.extend<std::string>( "VARIABLE_NAME");
+      inputData2[ "VARIABLE_TYPE" ].data<std::string>() = "std::string[112]";
+      inputData2[ "VARIABLE_NAME" ].data<std::string>() = "ArrayPayload::m_as1";
+      mappingTable.updateRows( setClause,whereClause, inputData2  );
+      coral::AttributeList inputData3;
+      inputData3.extend<std::string>( "VARIABLE_TYPE");
+      inputData3.extend<std::string>( "VARIABLE_NAME");
+      inputData3[ "VARIABLE_TYPE" ].data<std::string>() = "Param[112]";
+      inputData3[ "VARIABLE_NAME" ].data<std::string>() = "ArrayPayload::m_ap1";
+      mappingTable.updateRows( setClause,whereClause, inputData3  );
+    }
+    trans.commit();
+    return ret;
+  }
+}
+
 bool TestFunct::Write (std::string mappingName, int payloadID)
 {
         cond::DbScopedTransaction trans(s);
@@ -142,6 +188,7 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
         std::string tok0("");
 	try 
 	{
+	    boost::shared_ptr<Payload> dummy = TestFuncImpl::initWriting( s );
 	    trans.start();
 	    coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
 	    coral::AttributeList rowBuffer;
@@ -172,6 +219,7 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
     cond::MetaData  metadata(s);
     std::string tok0("");
     try {
+      boost::shared_ptr<Payload> dummy = TestFuncImpl::initWriting( s );
       cond::IOVEditor iov(s);
       trans.start();
       if( updateTestMetadata ){
